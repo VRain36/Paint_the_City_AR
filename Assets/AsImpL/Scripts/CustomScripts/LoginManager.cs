@@ -9,10 +9,13 @@ namespace CustomScripts
 		public GameObject LoginView;
 		public InputField ID_inputField;
 		public InputField PW_inputField;
-		public Button Login_Button;
+		public Button LoginButton;
+		public Button CancelButton;
 
 		// 다른 모듈에서 참조할 수 있도록 변수 추가  
 		public string testuserID = "";
+
+		public static bool LoginButtonMode = false;
 
 		/// <summary>
 		/// 로그인 버튼 클릭시 실행
@@ -30,11 +33,19 @@ namespace CustomScripts
 
 				// 로그인 창 닫음
 				LoginView.SetActive(false);
+
+				// 버튼 클릭 유무 확인
+				LoginButtonMode = true;
 			}
 			else
 			{
 				Debug.Log("아이디가 입력되지 않았습니다.");
 			}
+		}
+
+		public void CancelButtonClick()
+		{
+			LoginView.SetActive(false); // 로그인 창 닫음
 		}
 	}
 

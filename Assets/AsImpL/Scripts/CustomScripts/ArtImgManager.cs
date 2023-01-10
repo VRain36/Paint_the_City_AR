@@ -5,13 +5,15 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using LoadDB;
+using CustomScripts;
+
 
 namespace ArtItem
 {
     public class ArtImgManager : MonoBehaviour
     {
-        public RawImage artImg;
-        public Text artName;
+        public GameObject LoginRequestPanel;
+        public GameObject LoginPanel;
 
         public int nRows = 0;
 
@@ -22,13 +24,22 @@ namespace ArtItem
         public GameObject scrollContent; // Content 아래에 button 만들려고 해서, Content 클래스 불러오려고 했는데 없다고 함 -> GameObject
         public Button exampleButton;
         public Button refreshButton;
+        public Button publicButton;
+        public Button privateButton;
         // public RawImage LoadingPanel;
 
 
         public int numOfChild = 0;
+        public int childItemNum = 0;
 
         public bool refreshMode = false;
+        public bool publicMode = true;
+        public bool publicModeChange = false;
+        public bool initialMode = true;
         public string test;
+        public string userID;
+
+        public static List<int> userIndexArray = new List<int>(); 
 
         void Start()
         {
@@ -36,58 +47,138 @@ namespace ArtItem
 
         void Update()
         {
-            nRows = DatabaseManager.nRows;
             numOfChild = scrollContent.transform.childCount;
+            userID = UserInfo.userInfo.getUserID();
 
-            if (numOfChild == 0) // 처음 상태
+            
+            if (initialMode == true) // 초기상태 -> 의 조건을 (numOfChild 개수 == 0) 이렇게 하다보니, 만약 개수 0이면 mode 변경되면 중복으로 생성되는 문제
             {
-                while (numOfChild < nRows)
-                {
-                    Button child = Instantiate(exampleButton);
-                    child.name = "Button " + numOfChild.ToString();
+                LoadArtList(publicMode); // public            
+                initialMode = false; // 작품 리스트 창 밖에서 로그인 한 경우, 초기모드로 인식되지 않아서 중복으로 보일 수도 
+            }
 
-                    artImg = child.transform.GetChild(0).gameObject.GetComponent<RawImage>(); // GetComponent<>() 가 GameObject -> RawImage로 형변환
-                    artName = child.transform.GetChild(1).gameObject.GetComponent<Text>();
-                    child.transform.GetChild(0).name = "ArtImage_RawImage " + numOfChild.ToString(); // 버튼 아래에 작품 이미지 생성
-                    child.transform.GetChild(1).name = "ArtName_Text (Legacy) " + numOfChild.ToString(); // 버튼 아래에 작품 이름 생성
-                    
-                    child.transform.SetParent(scrollContent.transform);
-                    LoadArtItem(artImg, artName, numOfChild);
-                    numOfChild += 1;
+
+            // 로그인 유무 확인
+            if (LoginManager.LoginButtonMode == true) // && userID != "" 여부는 LoginButtonMode == true 에서 확인함
+            {
+                userIndexArray = new List<int>(); // 사용자 변경될 수도 있으므로, 초기화
+                for (int i=0;i<DatabaseManager.artInfo.Length;i++)
+                {
+                    if (userID == DatabaseManager.artInfo[i].getUserID())
+                    {
+                        userIndexArray.Add(i); // for문으로 계속 add() 하므로, 한 번만 확인하도록 해야 
+                    }
                 }
+
+                LoginRequestPanel.gameObject.SetActive(false);
+                LoadArtList(publicMode);
+                LoginManager.LoginButtonMode = false;
+                initialMode = false;
             }
 
             if (refreshMode == true) // 새로고침 한 경우 // 따로 해야 하는 이유는 Destroy 있어서 
             {
-                for (int i=0;i<scrollContent.transform.childCount;i++)
-                {
-                    GameObject temp_button = GameObject.Find("Button " + i);
-                    Destroy(temp_button);
-                }
-
-                numOfChild = 0;
-                while (numOfChild < nRows)
-                {
-                    Button child = Instantiate(exampleButton);
-                    child.name = "Button " + numOfChild.ToString();
-
-                    artImg = child.transform.GetChild(0).gameObject.GetComponent<RawImage>(); // GetComponent<>() 가 GameObject -> RawImage로 형변환
-                    artName = child.transform.GetChild(1).gameObject.GetComponent<Text>();
-                    child.transform.GetChild(0).name = "ArtImage_RawImage " + numOfChild.ToString(); // 버튼 아래에 작품 이미지 생성
-                    child.transform.GetChild(1).name = "ArtName_Text (Legacy) " + numOfChild.ToString(); // 버튼 아래에 작품 이름 생성
-                    
-                    child.transform.SetParent(scrollContent.transform);
-                    LoadArtItem(artImg, artName, numOfChild);
-                    numOfChild += 1;
-                }
-
+                LoadArtList(publicMode);
                 refreshMode = false;
             }
+
+            if (publicModeChange == true) // 모드 변경한 경우 // 따로 해야 하는 이유는 Destroy 있어서 
+            {
+                LoadArtList(publicMode);
+                publicModeChange = false;
+            }
         }
+
+        public void DeleteArtList()
+        {      
+            if (numOfChild > 0)
+            {
+                for (int i=0;i<numOfChild;i++)
+                {
+                    Transform temp_button = scrollContent.transform.GetChild(i);
+                    // if (temp_button.name.Contains("Button"))
+                        // GameObject temp_button = GameObject.Find("Button " + i);
+                    Destroy(temp_button.gameObject);
+                }
+            }
+        }
+
+        public void LoadArtList(bool mode)
+        {
+            int rows = 0;
+            List<int> indexArray;
+
+            if (mode == true) // public mode
+            {
+                rows = DatabaseManager.publicnRows;
+                indexArray = DatabaseManager.publicIndexArray;
+            }
+            else{
+                rows = userIndexArray.Count;
+                indexArray = userIndexArray;
+            }
+
+            // if 문으로 현재 만들어진 자식 obj 개수 확인하고 싶었으나, Update() 하기 전에는 그대로 유지되어서 의미 X
+            // 만들기 전에, 지우고 시작하면?
+            DeleteArtList();
+
+            childItemNum = 0; // 초기화 후 새로 시작
+            for (int i=0;i<indexArray.Count;i++)
+            {
+                Button child = Instantiate(exampleButton);
+                child.name = "Button " + childItemNum.ToString();
+
+                RawImage artImg = child.transform.GetChild(0).gameObject.GetComponent<RawImage>(); // GetComponent<>() 가 GameObject -> RawImage로 형변환
+                Text artName = child.transform.GetChild(1).gameObject.GetComponent<Text>();
+                child.transform.GetChild(0).name = "ArtImage_RawImage " + childItemNum.ToString(); // 버튼 아래에 작품 이미지 생성
+                child.transform.GetChild(1).name = "ArtName_Text (Legacy) " + childItemNum.ToString(); // 버튼 아래에 작품 이름 생성
+                
+                child.transform.SetParent(scrollContent.transform);
+                LoadArtItem(artImg, artName, indexArray[i]);
+                childItemNum += 1;
+            }
+        }
+
+        ////
 
         public void RefreshButtonClick()
         {
             refreshMode = true; // 처음부터 다시 받아오기 
+        }
+
+        public void PublicButtonClick()
+        {
+            if (publicMode == false) // private -> public
+            {
+                publicModeChange = true;
+                publicMode = true;
+            }
+            LoginRequestPanel.gameObject.SetActive(false);
+        }
+
+        public void PrivateButtonClick()
+        {
+            if (publicMode == true) // public -> private 
+            {
+                publicModeChange = true;
+                publicMode = false;
+            }
+
+            // 로그인 여부 확인 + 아이디 값 저장
+            if (userID != "")
+            {
+                Debug.Log("User already Login >>> user id = " + userID);
+            }
+            else{
+                Debug.Log("User need to Login");
+                LoginRequestPanel.gameObject.SetActive(true);
+            }
+
+        }
+
+        public void LoginRequestButtonClick()
+        {
+            LoginPanel.SetActive(true);
         }
 
         ///
@@ -148,26 +239,6 @@ namespace ArtItem
             // 선택된 작품 번호
             SelectedArtItem.selectedArtItem.setArtItemNum(artItemNum);
         }
-
-        /*
-            이미지 로드되기 전에 coroutine 종료되는 문제 있어서 일단 주석 처리 
-            if (img_url == DatabaseManager.artInfo[0].getArtImgUrl())
-            {
-                StopAllCoroutines();
-                coroutine = null;
-                // Debug.Log("Stop The Coroutine (Load Image... O/X).");
-            }
-            // imgList = new RawImage();
-            
-        
-            SelectedArtItem.selectedArtItem.setArtItemNum(artItemNum);
-
-            if (art_name != DatabaseManager.artInfo[0].getArtName())
-            {
-                art_name = DatabaseManager.artInfo[0].getArtName();
-                text.text = art_name;
-            }
-        */
 
         IEnumerator GetTexture(RawImage img, string img_url)
         {

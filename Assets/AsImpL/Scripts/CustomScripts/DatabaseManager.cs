@@ -2,12 +2,19 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace LoadDB{
     public class DatabaseManager : MonoBehaviour
     {
         public static int nRows;
+        public static int publicnRows = 0;
+        public static int privatenRows = 0;
         public static ArtInfoData[] artInfo;
+
+        public static List<int> publicIndexArray = new List<int>(); 
+        public static List<int> privateIndexArray = new List<int>(); 
 
         private void Start()
         {
@@ -36,14 +43,50 @@ namespace LoadDB{
                 for (int i = 0; i < php_result.Length ; i++)
                 {
                     string[] php_result_row = php_result[i].Split(new char[] { '>' });
-                    artInfo[i].setArtImgUrl(php_result_row[0]);
-                    artInfo[i].setArtName(php_result_row[1]);
-                    artInfo[i].setArtworkUrl(php_result_row[2]);
+                    artInfo[i].setArtworkID(Int32.Parse(php_result_row[0]));
+                    artInfo[i].setUserID(php_result_row[1]);
+                    artInfo[i].setArtImgUrl(php_result_row[2]);
+                    artInfo[i].setArtName(php_result_row[3]);
+                    artInfo[i].setArtworkUrl(php_result_row[4]);
+                    artInfo[i].setPublicMode(Int32.Parse(php_result_row[5]));
+
+                    if (Int32.Parse(php_result_row[5]) == 1) // public 
+                    {
+                        publicnRows += 1;
+                        // publicIndexArray.Append(i);
+                        publicIndexArray.Add(i);
+                    }
+                    else // private 
+                    {
+                        privatenRows += 1;
+                        // privateIndexArray.Append(i);
+                        privateIndexArray.Add(i);
+                    }
                 }
 
                 Debug.Log("==================php로부터 데이터 송신 완료==============");
+
+                // publicIndexArray = new int[publicnRows];
+                // privateIndexArray = new int[privatenRows];
             }
         }
+
+        ///
+        /*
+        public T[] Append<T>(this T[] array, T item) // 배열에 원소 추가 
+        {
+            if (array == null) {
+                return new T[] { item };
+            }
+            T[] result = new T[array.Length + 1];
+            array.CopyTo(result, 0);
+            result[array.Length] = item;
+            return result;
+        }
+        */
+
+
+        ////
 
         public class ArtInfo{
             private ArtInfoData[] artInfoList; // Lens 클래스의 배열 선언
@@ -57,15 +100,31 @@ namespace LoadDB{
 
         public class ArtInfoData
         {
+            private int ArtworkID;
+            private string UserID;
             private string ArtImgUrl;
             private string ArtName;
             private string ArtworkUrl;
+            private int PublicMode;
 
             public ArtInfoData()
             {
+                ArtworkID = -1;
+                UserID = "";
                 ArtImgUrl = "";
                 ArtName = "";
                 ArtworkUrl = "";
+                PublicMode = -1;
+            }
+
+            public void setArtworkID(int id)
+            {
+                this.ArtworkID = id;
+            }
+
+            public void setUserID(string id)
+            {
+                this.UserID = id;
             }
 
             public void setArtImgUrl(string url)
@@ -83,6 +142,21 @@ namespace LoadDB{
                 this.ArtworkUrl = url;
             }
 
+            public void setPublicMode(int mode)
+            {
+                this.PublicMode = mode;
+            }
+
+            public int getArtworkID()
+            {
+                return this.ArtworkID;
+            }
+
+            public string getUserID()
+            {
+                return this.UserID;
+            }
+
             public string getArtImgUrl()
             {
                 return this.ArtImgUrl;
@@ -96,6 +170,11 @@ namespace LoadDB{
             public string getArtworkUrl()
             {
                 return this.ArtworkUrl;
+            }
+
+            public int getPublicMode()
+            {
+                return this.PublicMode;
             }
         }
     }
