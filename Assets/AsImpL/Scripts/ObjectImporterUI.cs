@@ -16,7 +16,7 @@ namespace AsImpL
         public Slider progressSlider;
 
         [Tooltip("Panel with the Image Type set to Filled")]
-        public Image progressImage;
+        public Image progressImage; 
 
         private ObjectImporter objImporter;
 
@@ -28,10 +28,12 @@ namespace AsImpL
                 progressSlider.maxValue = 100f;
                 progressSlider.gameObject.SetActive(false);
             }
+
             if (progressImage != null)
             {
                 progressImage.gameObject.SetActive(false);
             }
+
             if (progressText != null)
             {
                 progressText.gameObject.SetActive(false);
@@ -76,11 +78,13 @@ namespace AsImpL
                     progressSlider.value = progress;
                     progressSlider.gameObject.SetActive(loading);
                 }
+
                 if (progressImage != null)
                 {
                     progressImage.fillAmount = progress / 100f;
                     progressImage.gameObject.SetActive(loading);
                 }
+
                 if (progressText != null)
                 {
                     if (loading)
@@ -136,6 +140,7 @@ namespace AsImpL
                 progressSlider.value = 0.0f;
                 progressSlider.gameObject.SetActive(true);
             }
+
             if (progressImage != null)
             {
                 progressImage.fillAmount = 0;
@@ -155,6 +160,7 @@ namespace AsImpL
                 progressSlider.value = 100.0f;
                 progressSlider.gameObject.SetActive(false);
             }
+
             if (progressImage != null)
             {
                 progressImage.fillAmount = 1f;

@@ -30,13 +30,13 @@ namespace ArtItem
 
 
         public int numOfChild = 0;
-        public int childItemNum = 0;
+        // public int childItemNum = 0;
 
         public bool refreshMode = false;
         public bool publicMode = true;
         public bool publicModeChange = false;
         public bool initialMode = true;
-        public string test;
+
         public string userID;
 
         public static List<int> userIndexArray = new List<int>(); 
@@ -122,24 +122,23 @@ namespace ArtItem
             // 만들기 전에, 지우고 시작하면?
             DeleteArtList();
 
-            childItemNum = 0; // 초기화 후 새로 시작
+            // childItemNum = 0; // 초기화 후 새로 시작 // 사실 필요 없음 
             for (int i=0;i<indexArray.Count;i++)
             {
+                int childNum = indexArray[i];
                 Button child = Instantiate(exampleButton);
-                child.name = "Button " + childItemNum.ToString();
+                child.name = "Button " + childNum.ToString();
 
                 RawImage artImg = child.transform.GetChild(0).gameObject.GetComponent<RawImage>(); // GetComponent<>() 가 GameObject -> RawImage로 형변환
                 Text artName = child.transform.GetChild(1).gameObject.GetComponent<Text>();
-                child.transform.GetChild(0).name = "ArtImage_RawImage " + childItemNum.ToString(); // 버튼 아래에 작품 이미지 생성
-                child.transform.GetChild(1).name = "ArtName_Text (Legacy) " + childItemNum.ToString(); // 버튼 아래에 작품 이름 생성
+                child.transform.GetChild(0).name = "ArtImage_RawImage " + childNum.ToString(); // 버튼 아래에 작품 이미지 생성
+                child.transform.GetChild(1).name = "ArtName_Text (Legacy) " + childNum.ToString(); // 버튼 아래에 작품 이름 생성
                 
                 child.transform.SetParent(scrollContent.transform);
-                LoadArtItem(artImg, artName, indexArray[i]);
-                childItemNum += 1;
+                LoadArtItem(artImg, artName, childNum);
+                // childItemNum += 1;
             }
         }
-
-        ////
 
         public void RefreshButtonClick()
         {
@@ -179,41 +178,6 @@ namespace ArtItem
         public void LoginRequestButtonClick()
         {
             LoginPanel.SetActive(true);
-        }
-
-        ///
-
-        public static IEnumerator InteractableList(bool InteractableMode)
-        {
-            GameObject scrollPanel = GameObject.Find("ScrollContent_Content");
-            Transform[] allChildren = scrollPanel.GetComponentsInChildren<Transform>(); // RawImage, 자기 자신 등 모든 객체 가져옴 -> 구분 필요 
-            
-            GameObject.Find("ArtListSystem").transform.Find("LoadingPanel_RawImage").gameObject.SetActive(!InteractableMode);
-            // RawImage loadingPanel = LoadingPanel.gameObject.GetComponent<RawImage>();
-            // loadingPanel.gameObject.SetActive(!InteractableMode);
-
-            /* 작품 기다리는 동안 로딩 창 띄우려고 했는데 안 됨ㅠㅠ.. 코루틴이 아니라 그냥 함수처럼 행동함
-            // 심지어 로딩 창 안 뜸... setActive(false) 인데도 띄우고 싶으면 어떡갛ㅁ...?
-            float delay = 0f;
-            if (InteractableMode == false){
-                while (delay <= 10f){
-                    delay += Time.deltaTime;
-                }
-                Debug.Log("delay = " + delay.ToString());
-            }
-            
-            foreach(Transform child in allChildren)
-            {
-                if (child.name.Contains("Button"))
-                {
-                    Button childButton = child.gameObject.GetComponent<Button>();
-                    childButton.interactable = InteractableMode;
-                }
-            }
-            */
-
-            yield break;
-            
         }
 
         public void LoadArtItem(RawImage img, Text text, int index)
@@ -259,8 +223,10 @@ namespace ArtItem
             // 방금 클릭한 게임 오브젝트를 가져와서 저장
             GameObject clickObject = EventSystem.current.currentSelectedGameObject;
             string artItemName = clickObject.name; 
+
+            // 버튼 번호가 아니라, 작품 번호로 설정하기
+
             artItemNum = int.Parse(artItemName[artItemName.Length-1].ToString()); // 이름 문자열의 마지막에 작품 번호 붙이기
-            test = artItemNum.ToString();
         }
     }
 

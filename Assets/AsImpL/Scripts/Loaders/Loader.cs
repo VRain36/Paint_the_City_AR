@@ -258,6 +258,8 @@ namespace AsImpL
             loadStats.buildTime = Time.realtimeSinceStartup - lastTime;
             loadStats.totalTime = Time.realtimeSinceStartup - startTime;
 
+            LoadManager.loadedTime = loadStats.totalTime;
+
             Debug.Log("Done: " + objName 
                 + "\n  Loaded in " + loadStats.totalTime + " seconds"
                 + "\n  Model data parsed in " + loadStats.modelParseTime + " seconds"
