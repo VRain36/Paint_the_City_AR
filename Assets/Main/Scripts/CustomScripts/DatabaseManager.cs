@@ -23,8 +23,8 @@ namespace CustomScripts
     
         private IEnumerator GetMySQLData()
         {
-            string site_addr = "localhost";
-            string serverPath = string.Format("http://{0}/LoadMySQL.php", site_addr); //PHP 파일의 위치를 저장
+            string site_addr = "";
+            string serverPath = string.Format("http://{0}/LoadData.php", site_addr); //PHP 파일의 위치를 저장
     
             WWWForm form = new WWWForm(); 
     

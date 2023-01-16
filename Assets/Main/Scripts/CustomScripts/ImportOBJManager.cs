@@ -33,6 +33,9 @@ namespace CustomScripts
 
         public GameObject objPanel;
 
+        // test
+        public Text test;
+
         public int artNum;
         public int getArtNum;
 
@@ -78,10 +81,14 @@ namespace CustomScripts
             {
                 artLoadStart = true;
                 filePath = FindPath(getArtNum);
+                
+                // test
+                test.text = filePath;
 
                 DeleteArtwork();
 
                 objectName = "User Artwork " + getArtNum.ToString(); 
+
                 objImporter.ImportModelAsync(objectName, filePath, null, importOptions); 
 
                 artNum = getArtNum;     
