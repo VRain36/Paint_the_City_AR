@@ -32,6 +32,8 @@ namespace CustomScripts
         protected ObjectImporter objImporter;
 
         public GameObject objPanel;
+        public GameObject locationPanel;
+        public GameObject displayPanel;
 
         public int artNum;
         public int getArtNum;
@@ -72,20 +74,25 @@ namespace CustomScripts
                 child.transform.SetParent(objPanel.transform);
                 artLoadStart = false; 
             } 
-
+            
             // 작품 로드 시작 
             if (artNum != getArtNum) 
-            {
-                artLoadStart = true;
-                filePath = FindPath(getArtNum);
-
-                DeleteArtwork();
-
-                objectName = "User Artwork " + getArtNum.ToString(); 
-
-                objImporter.ImportModelAsync(objectName, filePath, null, importOptions); 
-
-                artNum = getArtNum;     
+            { 
+                // 해당 위치에 도착했는지 확인
+                if ((GPSManager.user_lat == GPSManager.target_lat) && (GPSManager.user_lon == GPSManager.target_lon))
+                {
+                    artLoadStart = true;
+                    filePath = FindPath(getArtNum);
+                    DeleteArtwork();
+                    objectName = "User Artwork " + getArtNum.ToString(); 
+                    objImporter.ImportModelAsync(objectName, filePath, null, importOptions); 
+                    artNum = getArtNum; 
+                }
+                else
+                {
+                    locationPanel.SetActive(true);
+                    ArtImgManager.artItemNum = -1;
+                }
             }
         }
 
@@ -99,6 +106,16 @@ namespace CustomScripts
         {
             string path = DatabaseManager.artInfo[index].getArtworkUrl();
             return path;
+        }
+
+        public void onLocationOkbuttonClick()
+        {
+            locationPanel.SetActive(false);
+        }
+
+        public void onTargetFound()
+        {
+            displayPanel.SetActive(true);
         }
     }
 }
