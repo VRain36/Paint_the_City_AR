@@ -74,7 +74,14 @@ namespace CustomScripts
                 child.transform.SetParent(objPanel.transform);
                 artLoadStart = false; 
             } 
-            
+
+            // * test
+            GPSManager.user_lat = "1";
+            GPSManager.user_lon = "1";
+            GPSManager.target_lat = "1";
+            GPSManager.target_lon = "1";
+            // */
+
             // 작품 로드 시작 
             if (artNum != getArtNum) 
             { 

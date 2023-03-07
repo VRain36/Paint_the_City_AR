@@ -48,7 +48,7 @@ namespace CustomScripts
             {
                 text_latitude.text = "GPS not available";
                 text_longitude.text = "GPS not available";
-                GPSPanel.SetActive(true);
+                // GPSPanel.SetActive(true);
             }
         }
 
@@ -76,7 +76,7 @@ namespace CustomScripts
             {
                 text_latitude.text = "GPS not available";
                 text_longitude.text = "GPS not available";
-                GPSPanel.SetActive(true);
+                // GPSPanel.SetActive(true);
             }
         }
 

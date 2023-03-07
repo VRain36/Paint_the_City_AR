@@ -12,7 +12,7 @@ namespace CustomScripts
         public void SetScaling(float scl)
         {
             scl = Mathf.Pow(2.0f, scl);
-            objScalingText.text = "Scaling: " + scl;
+            objScalingText.text = "SIZE: x" + scl;
             transform.localScale = new Vector3(scl, scl, scl);
         }
     }
