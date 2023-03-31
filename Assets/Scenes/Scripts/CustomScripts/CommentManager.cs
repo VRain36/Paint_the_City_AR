@@ -90,34 +90,28 @@ namespace CustomScripts{
             form.AddField("command", command);
             form.AddField("artwork_id", currentItemNum);
 
-            if (command == "comment_update")
+            if (command == "comment_update") // 좋아요 업데이트는 command 만 있어도 되니까 조건문 필요 X
             {
                 form.AddField("comment_val", commentField.text);
                 form.AddField("comment_date", DateTime.Now.ToString("yyyy-MM-dd"));
                 commentField.text = "";
-                LoadCommentList(); // 댓글 업데이트 적용 + 업데이트에 시간이 걸리는 경우도 있음 -> 새로고침 버튼 누르도록 
             }
 
             UnityWebRequest www = UnityWebRequest.Post(comment_API_url, form);
-
+            Debug.Log("[UPDATE] " + www.downloadHandler.text);
             yield return www.SendWebRequest();
             www.Dispose();
 
-            if (command == "like_update" || command == "unlike_update")
-            {
-                StartCoroutine(ReadDB("like_read"));
-            }
+            LoadCommentList(); // 댓글 업데이트 적용 + 업데이트에 시간이 걸리는 경우도 있음 -> 새로고침 버튼 누르도록 
+            StartCoroutine(ReadDB("like_read")); // 좋아요 업데이트 적용
         }
 
         IEnumerator ReadDB(string command) 
         {
             WWWForm form = new WWWForm();
-
             form.AddField("command", command);
             form.AddField("artwork_id", currentItemNum);
-
             UnityWebRequest www = UnityWebRequest.Post(comment_API_url, form);
-
             yield return www.SendWebRequest();
 
             if (command == "like_read")
